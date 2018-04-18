@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>拖放的内容</title>
+		<style>
+			#word_list{
+				width: 400px;
+				height: 200px;
+				border:2px  dashed  #ccc;
+				list-style: none;
+				overflow: hidden;
+				padding:0;
+			}
+			#word_list li{
+				width: 50px;
+				height: 50px;
+				line-height: 50px;
+				margin: 25px;
+				text-align: center;
+				float: left;
+				background: #55a9e6;
+			}
+			.draging{
+	            background:#137574;
+	            opacity:0.8;
+        	}
+        	/*拖拽垃圾桶*/
+        	#del_img{
+        		width:800px;
+        		margin: 20px auto 0;
+        		border: 1px solid #ccc;
+        		text-align: center;
+        	}
+        	#trash{
+        		width: 300px;
+        	}
+        	.imgs{
+        		width: 250px;
+        		height: 200px;
+        	}
+        	#content{
+        		width:500px;
+        		min-height: 600px;
+        		border: 1px solid #CCCCCC;
+        	}
+        	#content img{
+        		width: 200px;
+        		height: 300px;
+        	}
+		</style>
+	</head>
+	<body>
+		<h3>节点拖拽</h3>
+		<ul id='word_list'>
+			 <!--draggable="true"  要加上 表示允许拖拽-->
+			<li draggable="true">G</li>
+			<li draggable="true">F</li>
+			<li draggable="true">D</li>
+			<li draggable="true">B</li>
+			<li draggable="true">C</li>
+			<li draggable="true">A</li>
+			<li draggable="true">E</li>
+			<li draggable="true">H</li>
+		</ul>
+		<h3>将龙猫拖进垃圾桶</h3>
+		<div id='del_img'>
+     			 <img id="trash" src="./img/default.png">  
+				<hr />
+				<img id="item1" class="imgs" src="./img/01.jpeg">  
+			    <img id="item2" class="imgs" src="./img/02.jpg">  
+			    <img id="item3" class="imgs" src="./img/03.jpeg">  
+			</div>
+		<h3>把你的照片拖拽进来吧</h3>
+		<div id="content"></div>
+		<!--/*
+	    *源对象事件：ondragstart/ondrag/ondragend
+	    *目标对象事件：ondragenter/ondragover/ondragleave/ondrop
+		*/-->
+		<!--节点拖拽-->
+		<script>
+		
+			var word_list = document.querySelector('#word_list')
+			var ele;    //用来保存拖拽的对象
+			word_list.addEventListener('dragstart',function(e){
+				ele = e.target
+				ele.classList.add('draging')
+			})
+			word_list.addEventListener('dragover',function(e){
+				e.preventDefault()
+			})
+			word_list.addEventListener('drop',function(e){
+				ele.classList.remove('draging');
+				if(e.target.nodeName == 'LI'){
+					e.target.parentNode.insertBefore(ele,e.target);    //源对象元素插入到目标元素的前面
+				}
+			})
+		</script>
+		
+		<!--龙猫进垃圾桶-->
+		<script type="text/javascript">
+//			注意两种DOM元素的区别
+			var trash =  document.querySelector('#trash')
+			var items =  document.querySelectorAll('.imgs')
+			//为源对象绑定事件
+			for(var i=0;i<items.length;i++){
+				var current = items[i]
+				current.ondragstart = function(e){
+					e.dataTransfer.setData('imgID',this.id);//保存推拽对象的ID
+				}
+			}
+			trash.ondragover = function(e){
+				e.preventDefault()
+			}
+			trash.ondrop = function(e){
+//				从dom中删除源对象
+				var id = e.dataTransfer.getData('imgID')
+				var el = document.getElementById(id)
+				el.parentNode.removeChild(el) ; 
+			}	
+			
+		</script>
+		
+		<!--照片拖拽进来-->
+		<script>
+			var content = document.querySelector('#content');
+			document.addEventListener('dragover',function(e){
+				e.preventDefault();
+			})
+			document.addEventListener('drop',function(e){
+				e.preventDefault();
+			})
+			content.ondragover = function(e){
+				e.preventDefault();
+			}
+			content.addEventListener('drop',function(e){
+				var files = e.dataTransfer.files[0]
+				console.log(files)
+				var fs = new FileReader();
+				fs.readAsDataURL(files)
+				fs.onload = function(){
+					var img = new Image();
+					img.src = fs.result ; 
+					content.appendChild(img)
+				}
+			})
+			
+		</script>
+	</body>
+</html>
+
