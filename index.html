@@ -143,8 +143,64 @@
 					img.src = fs.result ; 
 					content.appendChild(img)
 				}
+				/** 拖拽上传文件
+			   	var files = e.dataTransfer.files
+                            	ES.each(files,function (i, v) {
+					 var file = files[i],
+					    formData = new FormData();
+					 formData.append("file" , file);
+					 popupChangeCallback(file.name,ES.createOrderScope.clickTargetLink,formData)
+                            	})
+				*/
 			})
-			
+		 function popupChangeCallback(fileName, target,formData) {
+			var name = fileName.replace(/^.+?\\([^\\]+?)(\.[^\.\\]*?)?$/gi, "$1"),
+			    FileExt = fileName.replace(/.+\./, "");
+			// 需做文件类型判断时在此添加
+			if (FileExt.toLowerCase() !== 'png' && FileExt.toLowerCase() !== 'jpg' && FileExt.toLowerCase() !== 'bmp' && FileExt.toLowerCase() !== 'jpeg' && FileExt.toLowerCase() !== 'tiff') {
+			    ES.get('.main-popup-error').show()
+			    ES.get('.popup-warn').hide()
+			    ES.get('.popup-error').html('<i class="fa fa-times-circle"></i>请上传图片！').show()
+			    ES.createOrderScope.clearUploadFile()
+			    return ;
+			}else{
+			    ES.get('.main-popup-error').hide()
+			}
+			var success_callback = function (res) {
+			    if (res.success) {
+				var ele = '<li class="img_item" data-value="'+res.attachmentId+'">' +
+				    '<img src="/ws-truck/registration/company/downLoad?id=' + res.attachmentId +'" />' +
+				    '<span class="img_remove"><i class="fa fa-remove"></i></span>'+
+				    '</li>'
+				ES.get('.img_items').append(ele)
+
+			    } else {
+				ES.get('.main-popup-error').show()
+				ES.get('.popup-warn').hide()
+				ES.get('.popup-error').html('<i class="fa fa-times-circle"></i>'+res.messageInfo).show()
+			    }
+			}
+			ES.util.ajax({
+				url: "你的URL",
+				type: "POST",
+				data: formData,
+				headers: {
+				    "X-Requested-By": "eshipping"
+				},
+				async: false,
+				cache: false,
+				contentType: false,
+				processData: false,//这个一定要设置
+				success: function(res) {
+				    success_callback(res)
+				},
+				error: function() {
+				    ES.get('.main-popup-error').show()
+				    ES.get('.popup-warn').hide()
+				    ES.get('.popup-error').html('<i class="fa fa-times-circle"></i>上传失败！').show()
+				}
+                    });
+		}
 		</script>
 	</body>
 </html>
